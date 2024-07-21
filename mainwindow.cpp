@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "qpushbutton.h"
 #include "ui_mainwindow.h"
 #include "qrcodedialog.h"
 #include "trayicon.h"
@@ -13,6 +14,7 @@
 #include <QTimer>
 #include <QSettings>
 #include <QDir>
+#include <QCloseEvent>
 
 
 #include <opencv2/opencv.hpp>
@@ -126,5 +128,34 @@ void MainWindow::onAutoRunCheckBoxToggled(bool checked)
         settings.setValue(appName, appPath);
     } else {
         settings.remove(appName);
+    }
+}
+
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    // 弹出对话框，询问用户选择
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(tr("关闭程序"));
+    msgBox.setText(tr("您想隐藏到托盘还是关闭程序?"));
+
+    QPushButton *hideButton = msgBox.addButton(tr("隐藏到托盘"), QMessageBox::ActionRole);
+    QPushButton *closeButton = msgBox.addButton(tr("关闭程序"), QMessageBox::ActionRole);
+    msgBox.setDefaultButton(hideButton);
+
+    msgBox.exec();
+
+    // 确保比较的按钮类型一致
+    if (msgBox.clickedButton() == dynamic_cast<QAbstractButton*>(hideButton)) {
+        // 隐藏到托盘
+        this->hide();
+        trayIcon->showMessage("QR Code Scanner", "程序已隐藏到托盘。");
+        event->ignore();
+    } else if (msgBox.clickedButton() == dynamic_cast<QAbstractButton*>(closeButton)) {
+        // 关闭程序
+        event->accept();
+    } else {
+        // 用户取消关闭操作
+        event->ignore();
     }
 }

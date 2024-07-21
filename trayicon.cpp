@@ -61,3 +61,8 @@ void TrayIcon::onActivate(QSystemTrayIcon::ActivationReason reason)
         QMessageBox::information(nullptr, tr("Tray Icon"), tr("QR Code Scanner is running."));
     }
 }
+
+void TrayIcon::showMessage(const QString &title, const QString &message)
+{
+    trayIcon->showMessage(title, message, QSystemTrayIcon::Information, 3000);
+}

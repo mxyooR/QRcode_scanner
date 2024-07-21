@@ -13,6 +13,7 @@ class TrayIcon : public QObject
     Q_OBJECT
 public:
     explicit TrayIcon(MainWindow *mainWindow, QObject *parent = nullptr);
+    void showMessage(const QString &title, const QString &message);  // 添加 showMessage 方法
 
 private slots:
     void showMainWindow();
