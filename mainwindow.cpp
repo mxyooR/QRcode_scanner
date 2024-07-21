@@ -11,6 +11,9 @@
 #include <QPixmap>
 #include <QScreen>
 #include <QTimer>
+#include <QSettings>
+#include <QDir>
+
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -35,6 +38,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     // 设置全局快捷键
     connect(globalShortcut, &GlobalShortcut::shortcutActivated, this, &MainWindow::onShortcutActivated);
+    // 连接 AutoRunCheckBox 的信号和槽
+    connect(ui->AutoRuncheckBox, &QCheckBox::toggled, this, &MainWindow::onAutoRunCheckBoxToggled);
+
+    // 初始化 AutoRunCheckBox 的状态
+    updateAutoRunSetting();
 
     this->setStyleSheet("QMainWindow {"
                         "    background-color: #f0f0f0;"
@@ -96,5 +104,27 @@ void MainWindow::recognizeQRCode(const QPixmap &pixmap)
         msgBox.setText(tr("No QR Code detected!"));
         msgBox.setWindowTitle(tr("QR Code Content"));
         msgBox.exec();
+    }
+}
+
+void MainWindow::updateAutoRunSetting()
+{
+    QSettings settings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings::NativeFormat);
+    QString appName = QApplication::applicationName();
+    bool isAutoRun = settings.contains(appName);
+
+    ui->AutoRuncheckBox->setChecked(isAutoRun);
+}
+
+void MainWindow::onAutoRunCheckBoxToggled(bool checked)
+{
+    QSettings settings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings::NativeFormat);
+    QString appName = QApplication::applicationName();
+    QString appPath = QDir::toNativeSeparators(QApplication::applicationFilePath());
+
+    if (checked) {
+        settings.setValue(appName, appPath);
+    } else {
+        settings.remove(appName);
     }
 }

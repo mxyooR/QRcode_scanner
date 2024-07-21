@@ -21,11 +21,13 @@ public:
 private slots:
     void onShortcutActivated();
     void recognizeQRCode(const QPixmap &pixmap);
+    void onAutoRunCheckBoxToggled(bool checked);
 
 private:
     Ui::MainWindow *ui;
     GlobalShortcut *globalShortcut;
     TrayIcon *trayIcon;  // 声明 TrayIcon 成员变量
+    void updateAutoRunSetting();
 };
 
 #endif // MAINWINDOW_H

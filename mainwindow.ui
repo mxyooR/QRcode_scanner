@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QCheckBox" name="checkBox">
+   <widget class="QCheckBox" name="AutoRuncheckBox">
     <property name="geometry">
      <rect>
       <x>60</x>
