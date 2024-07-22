@@ -2,6 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "screenshot.h"
+#include "globalshortcut.h"
+#include "trayicon.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -15,7 +18,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 protected:
@@ -23,14 +26,17 @@ protected:
 
 private slots:
     void onShortcutActivated();
+    void onScreenshotTaken(const QPixmap &pixmap);
     void recognizeQRCode(const QPixmap &pixmap);
     void onAutoRunCheckBoxToggled(bool checked);
 
 private:
     Ui::MainWindow *ui;
+    Screenshot *screenshot;
     GlobalShortcut *globalShortcut;
     TrayIcon *trayIcon;  // 声明 TrayIcon 成员变量
     void updateAutoRunSetting();
 };
 
 #endif // MAINWINDOW_H
+

@@ -58,7 +58,9 @@ void TrayIcon::quitApp()
 void TrayIcon::onActivate(QSystemTrayIcon::ActivationReason reason)
 {
     if (reason == QSystemTrayIcon::Trigger) {
-        QMessageBox::information(nullptr, tr("Tray Icon"), tr("QR Code Scanner is running."));
+        mainWindow->show();
+        mainWindow->raise();
+        mainWindow->activateWindow();
     }
 }
 
