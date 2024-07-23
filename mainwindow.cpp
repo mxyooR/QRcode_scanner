@@ -85,26 +85,45 @@ MainWindow::~MainWindow()
 
 void MainWindow::onShortcutActivated()
 {
-    std::cout<<"111"<<std::endl;
     screenshot->startScreenshot();
 }
 
 void MainWindow::recognizeQRCode(const QPixmap &pixmap)
 {
+    qDebug() << "Converting QPixmap to cv::Mat...";
     cv::Mat mat = QPixmapToCvMat(pixmap);
-    std::vector<cv::Point> points;
-    std::string decoded_info;
+    if (mat.empty()) {
+        qDebug() << "Conversion failed, empty cv::Mat.";
+        return;
+    }
+    qDebug() << "Conversion done. Detecting QR code...";
 
     cv::QRCodeDetector qr_decoder;
-    decoded_info = qr_decoder.detectAndDecode(mat, points);
+    std::vector<cv::Point> points;
+    std::string decoded_info = qr_decoder.detectAndDecode(mat);
+
+    qDebug() << "QR code detection finished.";
 
     if (!decoded_info.empty()) {
-        QRCodeDialog dialog(QString::fromStdString(decoded_info), this);
-        dialog.setWindowFlags(dialog.windowFlags() | Qt::WindowStaysOnTopHint);
-        dialog.exec();
+        qDebug() << "QR Code content:" << QString::fromStdString(decoded_info);
+        QMetaObject::invokeMethod(this, "showQRCodeDialog", Qt::QueuedConnection,
+                                  Q_ARG(QString, QString::fromStdString(decoded_info)));
     } else {
-        QMessageBox::information(this, tr("QR Code Content"), tr("没有检测到二维码"), QMessageBox::Ok);
+        QMetaObject::invokeMethod(this, "showNoQRCodeMessage", Qt::QueuedConnection);
     }
+}
+
+// 添加这两个新的槽函数
+void MainWindow::showQRCodeDialog(const QString &content)
+{
+    QRCodeDialog dialog(content, this);
+    dialog.setWindowFlags(dialog.windowFlags() | Qt::WindowStaysOnTopHint);
+    dialog.exec();
+}
+
+void MainWindow::showNoQRCodeMessage()
+{
+    QMessageBox::information(this, tr("QR Code Content"), tr("没有检测到二维码"), QMessageBox::Ok);
 }
 
 
@@ -160,7 +179,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::onScreenshotTaken(const QPixmap &pixmap)
 {
-    QLabel *label = new QLabel;
-    label->setPixmap(pixmap);
-    label->show();
+    qDebug() << "Screenshot taken, starting QR code recognition...";
+
+    // 在新线程中执行识别
+    recognitionFuture = QtConcurrent::run([this, pixmap]() {
+        this->recognizeQRCode(pixmap);
+    });
 }
+

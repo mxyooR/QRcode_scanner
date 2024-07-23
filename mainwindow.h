@@ -5,6 +5,9 @@
 #include "screenshot.h"
 #include "globalshortcut.h"
 #include "trayicon.h"
+#include <QThread>
+#include <QFuture>
+#include <QtConcurrent>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -29,8 +32,11 @@ private slots:
     void onScreenshotTaken(const QPixmap &pixmap);
     void recognizeQRCode(const QPixmap &pixmap);
     void onAutoRunCheckBoxToggled(bool checked);
+    void showQRCodeDialog(const QString &content);
+    void showNoQRCodeMessage();
 
 private:
+    QFuture<void> recognitionFuture;
     Ui::MainWindow *ui;
     Screenshot *screenshot;
     GlobalShortcut *globalShortcut;

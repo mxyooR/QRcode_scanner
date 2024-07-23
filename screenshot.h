@@ -26,6 +26,7 @@ private:
     bool selecting;
     QPoint selectionStart;
     QPoint selectionEnd;
+    qreal devicePixelRatio;
 };
 
 #endif // SCREENSHOT_H
