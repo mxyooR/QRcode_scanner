@@ -20,6 +20,7 @@ void GlobalShortcut::checkShortcut()
     }
 }
 
+//监测ctrl+alt+q是否按住
 bool GlobalShortcut::isCtrlAltDPressed()
 {
     return (GetAsyncKeyState(VK_CONTROL) & 0x8000) && (GetAsyncKeyState(VK_MENU) & 0x8000) && (GetAsyncKeyState('Q') & 0x8000);

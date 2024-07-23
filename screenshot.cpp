@@ -18,6 +18,7 @@ Screenshot::Screenshot(QWidget *parent)
     }
 }
 
+//完善屏幕截图缩放带来的bug
 void Screenshot::startScreenshot()
 {
     QScreen *screen = QGuiApplication::primaryScreen();

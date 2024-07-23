@@ -40,7 +40,7 @@ private:
     Ui::MainWindow *ui;
     Screenshot *screenshot;
     GlobalShortcut *globalShortcut;
-    TrayIcon *trayIcon;  // 声明 TrayIcon 成员变量
+    TrayIcon *trayIcon;
     void updateAutoRunSetting();
 };
 
