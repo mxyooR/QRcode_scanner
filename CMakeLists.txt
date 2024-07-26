@@ -78,4 +78,4 @@ install(TARGETS QRscanner
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_finalize_executable(QRscanner)
 endif()
-set(CMAKE_BUILD_TYPE Debug)
+

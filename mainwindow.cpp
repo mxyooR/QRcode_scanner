@@ -131,7 +131,11 @@ void MainWindow::updateAutoRunSetting()
 {
     QSettings settings("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings::NativeFormat);
     QString appName = QApplication::applicationName();
-    bool isAutoRun = settings.contains(appName);
+    QString appPath = QDir::toNativeSeparators(QApplication::applicationFilePath());
+    QString value = settings.value(appName).toString();
+
+    // Check if the appPath contains the --startup argument
+    bool isAutoRun = value.contains(QString("\"%1\" --startup").arg(appPath), Qt::CaseInsensitive);
 
     ui->AutoRuncheckBox->setChecked(isAutoRun);
 }
@@ -143,12 +147,13 @@ void MainWindow::onAutoRunCheckBoxToggled(bool checked)
     QString appPath = QDir::toNativeSeparators(QApplication::applicationFilePath());
 
     if (checked) {
-        settings.setValue(appName, appPath);
+        // Set the value with --startup argument
+        QString value = QString("\"%1\" --startup").arg(appPath);
+        settings.setValue(appName, value);
     } else {
         settings.remove(appName);
     }
 }
-
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
