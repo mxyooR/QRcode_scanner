@@ -42,6 +42,9 @@ private:
     GlobalShortcut *globalShortcut;
     TrayIcon *trayIcon;
     void updateAutoRunSetting();
+    QPoint m_dragPosition;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 };
 
 #endif // MAINWINDOW_H

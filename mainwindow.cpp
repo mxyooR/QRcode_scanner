@@ -36,45 +36,83 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
     , screenshot(new Screenshot(this))
     , globalShortcut(new GlobalShortcut(this))
-    , trayIcon(new TrayIcon(this, this))  // 初始化 TrayIcon 成员变量
+    , trayIcon(new TrayIcon(this, this))
 {
     ui->setupUi(this);
 
     // 设置全局快捷键
     connect(globalShortcut, &GlobalShortcut::shortcutActivated, this, &MainWindow::onShortcutActivated);
-
     // 连接 AutoRunCheckBox 的信号和槽
     connect(ui->AutoRuncheckBox, &QCheckBox::toggled, this, &MainWindow::onAutoRunCheckBoxToggled);
-
     // 连接截图信号
     connect(screenshot, &Screenshot::screenshotTaken, this, &MainWindow::onScreenshotTaken);
-
+    connect(ui->closeButton, &QPushButton::clicked, this, &QMainWindow::close);
     // 初始化 AutoRunCheckBox 的状态
     updateAutoRunSetting();
 
-    this->setStyleSheet("QMainWindow {"
-                        "    background-color: #f0f0f0;"
-                        "    border: 1px solid #ccc;"
-                        "}"
-                        "QPushButton {"
-                        "    background-color: #266ebc;"
-                        "    color: white;"
-                        "    border: none;"
-                        "    padding: 10px 24px;"
-                        "    text-align: center;"
-                        "    text-decoration: none;"
-                        "    display: inline-block;"
-                        "    font-size: 16px;"
-                        "    margin: 4px 2px;"
-                        "    border-radius: 8px;"
-                        "}"
-                        "QPushButton:hover {"
-                        "    background-color: #1652ab;"
-                        "}"
-                        "QLabel {"
-                        "    font-size: 18px;"
-                        "    color: #333;"
-                        "}");
+    this->setStyleSheet(R"(
+        QMainWindow {
+            background-color: #f0f0f0;
+            border: 1px solid #cccccc;
+            border-radius: 10px;
+        }
+        QWidget#centralwidget {
+            background-color: transparent;
+        }
+        QLabel#titleLabel {
+            font-family: "黑体";
+            font-size: 24px;
+            font-weight: bold;
+            color: #266ebc;
+            margin-bottom: 20px;
+        }
+        QCheckBox {
+            font-family: "黑体";
+            font-size: 16px;
+            color: #333;
+        }
+        QCheckBox::indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 10px;
+        }
+        QCheckBox::indicator:unchecked {
+            border: 2px solid #266ebc;
+            background-color: white;
+        }
+        QCheckBox::indicator:checked {
+            background-color: #266ebc;
+            border: 2px solid #266ebc;
+        }
+        QCheckBox::indicator:checked::after {
+            content: "✓";
+            color: white;
+            font-size: 16px;
+            position: absolute;
+            top: -2px;
+            left: 3px;
+        }
+        QPushButton#closeButton {
+            background-color: #266ebc;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 15px;
+            min-width: 30px;
+            max-width: 30px;
+            min-height: 30px;
+            max-height: 30px;
+        }
+        QPushButton#closeButton:hover {
+            background-color: #ff4d4d;
+        }
+    )");
+
+    // 移除窗口边框
+    this->setWindowFlags(Qt::FramelessWindowHint);
+
+    // 允许自定义窗口移动
+    this->setAttribute(Qt::WA_TranslucentBackground);
 }
 
 MainWindow::~MainWindow()
@@ -190,5 +228,23 @@ void MainWindow::onScreenshotTaken(const QPixmap &pixmap)
     recognitionFuture = QtConcurrent::run([this, pixmap]() {
         this->recognizeQRCode(pixmap);
     });
+}
+
+void MainWindow::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+    {
+        m_dragPosition = event->globalPos() - frameGeometry().topLeft();
+        event->accept();
+    }
+}
+
+void MainWindow::mouseMoveEvent(QMouseEvent *event)
+{
+    if (event->buttons() & Qt::LeftButton)
+    {
+        move(event->globalPos() - m_dragPosition);
+        event->accept();
+    }
 }
 
